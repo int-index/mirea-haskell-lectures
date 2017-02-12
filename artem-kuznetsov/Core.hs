@@ -1,53 +1,12 @@
-{-# LANGUAGE OverloadedLists, TypeFamilies #-}
+{-# LANGUAGE OverloadedLists, TemplateHaskell, TypeFamilies, NoImplicitPrelude #-}
 module Core where
 
-import GHC.Exts
-import qualified Prelude as P
-import Prelude (Show(..), Int, Num(..), fromIntegral)
+import Magic
+import Prelude(Show(..))
 
 data Nat = Zero | Succ Nat
 
--- (intToNat 4) = Succ (Succ (Succ (Succ Zero)))
-
-intToNat :: Int -> Nat
-intToNat = \x ->
-  case x of
-    0 -> Zero
-    n -> Succ (intToNat (n-1))
-
-natToInt :: Nat -> Int
-natToInt = \x ->
-  case x of
-    Zero -> 0
-    (Succ a) -> (natToInt a) + 1
-
-instance Num Nat where
-  (+) = addNat
-  (*) = mulNat
-  fromInteger = \x ->
-    intToNat (fromIntegral x)
-
-instance Show Nat where
-  show = \x -> show (natToInt x)
-
--- > head (tail (natsFrom 5))
--- 6
-
-instance Show ListNat where
-  show = \x -> show (toList x)
-
-instance IsList ListNat where
-  type Item ListNat = Nat
-  fromList = P.foldr ConsNat NilNat
-  toList = \x ->
-    case x of
-      NilNat -> []
-      (ConsNat n xs) -> n : toList xs
-
--- :set -XOverloadedLists
--- [2, 0] :: List
--- Cons (Succ (Succ Zero)) (Cons Zero Nil)
-
+magicNat ''Nat
 
 -- Some more magic code, please ignore
 ($) :: (a -> b) -> a -> b
@@ -75,14 +34,13 @@ not = \x ->
     False -> y
     True -> True
 
-addNat :: Nat -> Nat -> Nat
-addNat = \x y ->
+(+), (*) :: Nat -> Nat -> Nat
+(+) = \x y ->
   case x of
     Zero -> y
     (Succ x') -> Succ (x' + y)
 
-mulNat :: Nat -> Nat -> Nat
-mulNat = \x y ->
+(*) = \x y ->
   case x of
     Zero -> Zero
     (Succ x') -> y + (x' * y)
@@ -149,9 +107,10 @@ filterStream = \p s ->
 
 data ListNat = NilNat | ConsNat Nat ListNat
 data ListBool = NilBool | ConsBool Bool ListBool
-  deriving Show
 data ListListNat = NilListNat | ConsListNat ListNat ListListNat
-  deriving Show
+magicList ''ListNat
+magicList ''ListBool
+magicList ''ListListNat
 
 -- Test lists
 l, l2, l3 :: ListNat
