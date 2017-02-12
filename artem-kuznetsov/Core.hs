@@ -65,13 +65,11 @@ not = \x ->
     True -> False
     False -> True
 
-(&&) :: Bool -> Bool -> Bool
+(&&), (||) :: Bool -> Bool -> Bool
 (&&) = \x y ->
   case x of
     False -> False
     True -> y
-
-(||) :: Bool -> Bool -> Bool
 (||) = \x y ->
   case x of
     False -> y
@@ -89,13 +87,11 @@ mulNat = \x y ->
     Zero -> Zero
     (Succ x') -> y + (x' * y)
 
-odd :: Nat -> Bool
+odd, even :: Nat -> Bool
 odd = \x ->
   case x of
     Zero -> True
     (Succ a) -> even a
-
-even :: Nat -> Bool
 even = \x -> not (odd x)
 
 (==), (/=), (>), (<), (<=), (>=) :: Nat -> Nat -> Bool
@@ -157,10 +153,11 @@ data ListBool = NilBool | ConsBool Bool ListBool
 data ListListNat = NilListNat | ConsListNat ListNat ListListNat
   deriving Show
 
--- Test list
-l, l2 :: ListNat
-l = fromList [1,2,3,4,5,6,7,8,9,10]
-l2 = fromList [1,1,2,2,3,3,4,4,5,5,6,7,8,9,10]
+-- Test lists
+l, l2, l3 :: ListNat
+l = [1,2,3,4,5,6,7,8,9,10]
+l2 = [1,1,1,2,2,3,3,4,4,5,5,6,7,8,9,10]
+l3 = [1,2,6,5,2,3,3,4]
 
 streamToList :: Stream -> ListNat
 streamToList = \s ->
@@ -219,15 +216,16 @@ reverse = \xs ->
     ConsNat x xs' -> appendNat (reverse xs') (ConsNat x NilNat)
 
 
--- Alternative implementation of reverse
+-- Альтернативный вариант reverse
+reverse' :: ListNat -> ListNat
+reverse' = reverse_ NilNat
+
 reverse_ :: ListNat -> ListNat -> ListNat
 reverse_ = \acc xs ->
   case xs of
     NilNat -> acc
     ConsNat x xs' -> reverse_ (ConsNat x acc) xs'
 
-reverse' :: ListNat -> ListNat
-reverse' = reverse_ NilNat
 
 prependStream :: ListNat -> Stream -> Stream
 prependStream = \xs s ->
@@ -313,7 +311,10 @@ nub = \xs ->
     NilNat -> NilNat
     ConsNat x xs' -> ConsNat x (nub (filterNat (/=x) xs'))
 
--- Alternative nub implementation
+-- Альтернативный вариант nub
+nub' :: ListNat -> ListNat
+nub' = nub_ NilNat
+
 nub_ :: ListNat -> ListNat -> ListNat
 nub_ = \acc xs ->
   case xs of
@@ -322,9 +323,6 @@ nub_ = \acc xs ->
       case elem x acc of
         True -> nub_ acc xs'
         False -> nub_ (ConsNat x acc) xs'
-
-nub' :: ListNat -> ListNat
-nub' = nub_ NilNat
 
 data PairListNat = PLN ListNat ListNat
 data PairStream = PS Stream Stream
@@ -349,7 +347,13 @@ zip = \xs ys ->
         ConsNat y ys' -> ConsPairNat (PN x y) (zip xs' ys')
 
 length :: ListNat -> Nat
-length = \xs ->
+length = foldNat (\_ x -> Succ x) Zero
+
+sort :: ListNat -> ListNat
+sort = \xs ->
   case xs of
-    NilNat -> Zero
-    ConsNat _ xs' -> Succ (length xs')
+    NilNat           -> NilNat
+    ConsNat pivot xs' ->
+      case partitionNat (\x -> x < pivot) xs' of
+        PLN lesser bigger ->
+          appendNat (sort lesser) (ConsNat pivot (sort bigger))
