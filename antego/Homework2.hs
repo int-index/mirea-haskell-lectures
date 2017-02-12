@@ -11,7 +11,7 @@ data Bool = False | True deriving (Show)
 data ListNat = NilNat | ConsNat Nat ListNat
 data ListBool = NilBool | ConsBool Bool ListBool
 --data ListX = NilX | ConsX X ListX
---data ListListNat = NilListNat | ConsListNat ListNat ListListNat
+data ListListNat = NilListNat | ConsListNat ListNat ListListNat
 
 and :: Bool -> Bool -> Bool
 and = \x y ->
@@ -114,3 +114,37 @@ mapNatBool = \f l ->
 any, all :: (Nat -> Bool) -> ListNat -> Bool
 any = \p xs -> listOr (mapNatBool p xs)
 all = \p xs -> listAnd (mapNatBool p xs)
+
+(++) :: ListNat -> ListNat -> ListNat
+(++) = \x y ->
+  case x of
+    NilNat -> y
+    (ConsNat x xl) -> ConsNat x (xl ++ y)
+
+reverse :: ListNat -> ListNat
+reverse = \l ->
+  case l of
+    NilNat -> NilNat
+    ConsNat n nl -> (reverse nl) ++ (ConsNat n NilNat)
+
+concat :: ListListNat -> ListNat
+concat = \listOfNatLists ->
+  case listOfNatLists of
+    NilListNat -> NilNat
+    ConsListNat l ll -> l ++ (concat ll)
+
+instance Show ListListNat where
+  show = \x -> show (toList x)
+
+instance IsList ListListNat where
+  type Item ListListNat = ListNat
+  fromList = P.foldr ConsListNat NilListNat
+  toList = \x ->
+    case x of
+      NilListNat -> []
+      (ConsListNat n xs) -> n : toList xs
+
+data StreamNat = Neck Nat StreamNat deriving (Show)
+
+repeat :: Nat -> StreamNat
+repeat = \x -> (Neck x (repeat x))
