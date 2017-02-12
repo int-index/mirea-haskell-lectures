@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell, NoImplicitPrelude, MultiParamTypeClasses #-}
 
-module Magic (magicNat, magicList) where
+module Magic (magicNat, magicList, P.Show) where
 
 import qualified Prelude as P
 import qualified Data.List as L
