@@ -2,7 +2,7 @@
 module Core where
 
 import Magic
-import Prelude(Show(..))
+import Prelude()
 
 data Nat = Zero | Succ Nat
 
