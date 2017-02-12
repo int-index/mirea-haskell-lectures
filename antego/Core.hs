@@ -1,20 +1,11 @@
-
 {-# LANGUAGE OverloadedLists, TypeFamilies #-}
 module Core where
-
--- наверху файла
 
 import GHC.Exts
 import qualified Prelude as P
 import Prelude (Show(..), Int, Num(..), fromIntegral)
 
-
-
-
-
-data Bool =
-    False | True
-    deriving (Show)
+data Bool = False | True deriving (Show)
 
 not :: Bool -> Bool
 not = \x ->
@@ -142,7 +133,6 @@ filterList = \p s ->
 
 zeroesList :: List
 zeroesList = Cons Zero zeroesList
-
 
 instance Show List where
   show = \x -> show (toList x)

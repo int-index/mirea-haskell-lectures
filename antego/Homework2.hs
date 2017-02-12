@@ -52,6 +52,18 @@ natToInt = \x ->
     Zero -> 0
     (Succ a) -> (natToInt a) + 1
 
+even :: Nat -> Bool
+even = \x ->
+  case x of
+    Zero -> True
+    (Succ a) -> odd a
+
+odd :: Nat -> Bool
+odd = \x ->
+  case x of
+    Zero -> False
+    (Succ a) -> even a
+
 instance Num Nat where
   (+) = addNat
   (*) = multNat
@@ -71,7 +83,7 @@ instance IsList ListNat where
   toList = \x ->
     case x of
       NilNat -> []
-      ConsNat n xs -> n : toList xs
+      (ConsNat n xs) -> n : toList xs
 
 foldNat :: (Nat -> Nat -> Nat) -> Nat -> ListNat -> Nat
 foldNat = \f x list ->
@@ -92,3 +104,13 @@ foldBool = \f x list ->
 listAnd, listOr :: ListBool -> Bool
 listAnd = foldBool (&&) True
 listOr  = foldBool (||) False
+
+mapNatBool :: (Nat -> Bool) -> ListNat -> ListBool
+mapNatBool = \f l ->
+  case l of
+    NilNat -> NilBool
+    ConsNat n nl -> ConsBool (f n) (mapNatBool f nl)
+
+any, all :: (Nat -> Bool) -> ListNat -> Bool
+any = \p xs -> listOr (mapNatBool p xs)
+all = \p xs -> listAnd (mapNatBool p xs)
