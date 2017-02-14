@@ -139,10 +139,7 @@ foldl f x xs =
     (x':xs') -> foldl f (f x x') xs'
 
 (++) :: [a] -> [a] -> [a]
-(++) xs ys =
-  case xs of
-    [] -> ys
-    (x:xs) -> x : (xs ++ ys)
+(++) xs ys = foldr (:) ys xs
 
 map :: (a -> b) -> [a] -> [b]
 map f xs =
@@ -282,7 +279,7 @@ zip :: [a] -> [b] -> [Pair a b]
 zip = zipWith Pair
 
 length :: [a] -> Nat
-length = foldr (\_ x -> Succ x) Zero
+length = foldr (const Succ) Zero
 
 rangeStep :: Nat -> Nat -> Nat -> [Nat]
 rangeStep a b c = takeWhileStream (<=c) $ iterate (+ (b-a)) a
