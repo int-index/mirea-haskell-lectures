@@ -328,8 +328,14 @@ nub = \xs ->
 data PairStream = PS Stream Stream
 
 psFirst, psSecond :: PairStream -> Stream
-psFirst  (PS a _) = a
-psSecond (PS _ b) = b
+
+psFirst = \ps ->
+  case ps of
+    (PS a _) -> a
+
+psSecond = \ps ->
+  case ps of
+    (PS _ b) -> b
 
 partitionStream :: (Nat -> Bool) -> Stream -> PairStream
 partitionStream = \p s ->
