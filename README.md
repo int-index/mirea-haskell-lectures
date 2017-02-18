@@ -4,3 +4,12 @@
 
 В этом репозитории располагаются дополнительные материалы к лекциям, а также
 выполненные домашние задания.
+
+## Easy Haskell Development Setup with Docker
+
+```bash
+$ docker run -it --rm -v $(pwd):/source haskell:8.0
+GHCi, version 8.0.1: http://www.haskell.org/ghc/  :? for help
+Prelude> :cd source/
+Prelude> :l Core
+```
