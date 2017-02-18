@@ -21,6 +21,7 @@ flip f x y = f y x
 ($) = id
 (.) :: (b -> c) -> (a -> b) -> a -> c
 (.) f g = \x -> f (g x)
+infixr 0 $
 
 
 data Bool = True | False
@@ -85,6 +86,8 @@ even = \x -> not (odd x)
 
 data Stream a = a :> Stream a
   deriving Show
+
+infixr :>
 
 head :: Stream a -> a
 head xs =
