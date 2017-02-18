@@ -8,9 +8,17 @@ data Nat = Zero | Succ Nat
 
 magicNat ''Nat
 
--- Some more magic code, please ignore
+const :: a -> b -> a
+const x _ = x
+
+id :: a -> a
+id x = x
+
+flip :: (a -> b -> c) -> b -> a -> c
+flip f x y = f y x
+
 ($) :: (a -> b) -> a -> b
-($) f x = f x
+($) = id
 (.) :: (b -> c) -> (a -> b) -> a -> c
 (.) f g = \x -> f (g x)
 
@@ -45,6 +53,14 @@ not = \x ->
     Zero -> Zero
     (Succ x') -> y + (x' * y)
 
+(-) = \x y ->
+  case x of
+    Zero -> Zero
+    (Succ x') ->
+      case y of
+        (Succ y') -> x' - y'
+        Zero -> x
+
 odd, even :: Nat -> Bool
 odd = \x ->
   case x of
@@ -62,257 +78,223 @@ even = \x -> not (odd x)
         Succ y' -> x' > y'
 
 (<=) = \x y -> not (x > y)
-(<)  = \x y -> y > x
+(<)  = flip (>)
 (>=) = \x y -> not (x < y)
 (==) = \x y -> (x >= y) && (x <= y)
 (/=) = \x y -> not (x == y)
 
-data Stream = Neck Nat Stream
+data Stream a = a :> Stream a
   deriving Show
 
-head :: Stream -> Nat
-head = \xs ->
+head :: Stream a -> a
+head xs =
   case xs of
-    (Neck x _) -> x
+    (x :> _) -> x
 
-tail :: Stream -> Stream
-tail = \xs ->
+tail :: Stream a -> Stream a
+tail xs =
   case xs of
-    (Neck _ xs') -> xs'
+    (_ :> xs') -> xs'
 
-repeat :: Nat -> Stream
-repeat = \x -> Neck x (repeat x )
+repeat :: a -> Stream a
+repeat x = x :> repeat x
 
-iterate :: (Nat -> Nat) -> Nat -> Stream
-iterate = \f x -> Neck x (iterate f (f x))
+iterate :: (a -> a) -> a -> Stream a
+iterate f x = x :> iterate f (f x)
 
-(!!) :: Nat -> Stream -> Nat
-(!!) = \x s ->
+(!!) :: Stream a -> Nat -> a
+(!!) s x =
   case x of
     Zero -> head s
-    (Succ n) -> n !! tail s
+    (Succ n) -> tail s !! n
 
-mapStream :: (Nat -> Nat) -> Stream -> Stream
-mapStream = \f s ->
+mapStream :: (a -> b) -> Stream a -> Stream b
+mapStream f s =
   case s of
-    (Neck x s') -> Neck (f x) (mapStream f s')
+    (x :> s') -> f x :> mapStream f s'
 
-filterStream :: (Nat -> Bool) -> Stream -> Stream
-filterStream = \p s ->
+filterStream :: (a -> Bool) -> Stream a -> Stream a
+filterStream p s =
   case s of
-    (Neck x s') ->
+    (x :> s') ->
       case p x of
-        True -> Neck x (filterStream p s')
+        True -> x :> filterStream p s'
         False -> filterStream p s'
 
-data ListNat = NilNat | ConsNat Nat ListNat
-data ListBool = NilBool | ConsBool Bool ListBool
-data ListListNat = NilListNat | ConsListNat ListNat ListListNat
-magicList ''ListNat
-magicList ''ListBool
-magicList ''ListListNat
-
--- Test lists
-l, l2, l3 :: ListNat
-l = [1,2,3,4,5,6,7,8,9,10]
-l2 = [1,1,1,2,2,3,3,4,4,5,5,6,7,8,9,10]
-l3 = [1,2,6,5,2,3,3,4]
-
-streamToList :: Stream -> ListNat
-streamToList = \s ->
+streamToList :: Stream a -> [a]
+streamToList s =
   case s of
-    (Neck x s) -> ConsNat x (streamToList s)
+    (x :> s) -> x : (streamToList s)
  
-foldNat :: (Nat -> Nat -> Nat) -> Nat -> ListNat -> Nat
-foldNat = \f x xs ->
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f x xs =
   case xs of
-    NilNat -> x
-    ConsNat x' xs' -> f x' (foldNat f x xs')
+    [] -> x
+    (x':xs') -> f x' (foldr f x xs')
 
-foldBool :: (Bool -> Bool -> Bool) -> Bool -> ListBool -> Bool
-foldBool = \f x xs ->
+foldl :: (b -> a -> b) -> b -> [a] -> b
+foldl f x xs =
   case xs of
-    NilBool -> x
-    ConsBool x' xs' -> f x' (foldBool f x xs')
+    [] -> x
+    (x':xs') -> foldl f (f x x') xs'
 
-foldListNat :: (ListNat -> ListNat -> ListNat) -> ListNat -> ListListNat -> ListNat
-foldListNat = \f x xs ->
+(++) :: [a] -> [a] -> [a]
+(++) xs ys = foldr (:) ys xs
+
+map :: (a -> b) -> [a] -> [b]
+map f xs =
   case xs of
-    NilListNat -> x
-    ConsListNat x' xs' -> f x' (foldListNat f x xs')
+    [] -> []
+    (x:xs') -> (f x) : (map f xs')
 
-appendNat :: ListNat -> ListNat -> ListNat
-appendNat = \xs ys ->
-  case xs of
-    NilNat -> ys
-    ConsNat x xs -> ConsNat x (appendNat xs ys)
+sum, product :: [Nat] -> Nat
+sum = foldr (+) Zero
+product = foldr (*) (Succ Zero)
 
-mapNatBool :: (Nat -> Bool) -> ListNat -> ListBool
-mapNatBool = \p xs ->
-  case xs of
-    NilNat -> NilBool
-    ConsNat x xs' -> ConsBool (p x) (mapNatBool p xs')
+and, or :: [Bool] -> Bool
+and = foldr (&&) True
+or = foldr (||) False
 
-sum, product :: ListNat -> Nat
-sum = foldNat (+) Zero
-product = foldNat (*) (Succ Zero)
+all, any :: (Nat -> Bool) -> [Nat] -> Bool
+all p xs = and (map p xs)
+any p xs = or  (map p xs)
 
-and, or :: ListBool -> Bool
-and = foldBool (&&) True
-or = foldBool (||) False
+concat :: [[a]] -> [a]
+concat = foldr (++) []
 
-all, any :: (Nat -> Bool) -> ListNat -> Bool
-all = \p xs -> and (mapNatBool p xs)
-any = \p xs -> or  (mapNatBool p xs)
+reverse :: [a] -> [a]
+reverse = foldl (flip (:)) []
 
-concat :: ListListNat -> ListNat
-concat = foldListNat (appendNat) NilNat
+prepend :: [a] -> Stream a -> Stream a
+prepend xs s = foldr (:>) s xs
 
-reverse :: ListNat -> ListNat
-reverse = \xs ->
-  case xs of
-    NilNat -> NilNat
-    ConsNat x xs' -> appendNat (reverse xs') (ConsNat x NilNat)
+cycle :: [a] -> Stream a
+cycle xs = prepend xs (cycle xs)
 
-
--- Альтернативный вариант reverse
-reverse' :: ListNat -> ListNat
-reverse' = reverse_ NilNat
-
-reverse_ :: ListNat -> ListNat -> ListNat
-reverse_ = \acc xs ->
-  case xs of
-    NilNat -> acc
-    ConsNat x xs' -> reverse_ (ConsNat x acc) xs'
-
-
-prependStream :: ListNat -> Stream -> Stream
-prependStream = \xs s ->
-  case xs of
-    NilNat -> s
-    ConsNat x xs' -> Neck x (prependStream xs' s)
-
-cycle :: ListNat -> Stream
-cycle = \xs -> prependStream xs (cycle xs)
-
-takeListNat :: Nat -> ListNat -> ListNat
-takeListNat = \n xs ->
+take :: Nat -> [a] -> [a]
+take n xs =
   case n of
-    Zero -> NilNat
+    Zero -> []
     (Succ n') ->
       case xs of
-        NilNat -> NilNat
-        (ConsNat x xs') -> ConsNat x (takeListNat n' xs')
+        [] -> []
+        (x:xs') -> x : (take n' xs')
 
-takeStream :: Nat -> Stream -> ListNat
-takeStream = \n s -> takeListNat n (streamToList s)
+takeStream :: Nat -> Stream a -> [a]
+takeStream n s = take n (streamToList s)
 
-replicate :: Nat -> Nat -> ListNat
-replicate = \n x -> takeStream n (repeat x)
+replicate :: Nat -> a -> [a]
+replicate n x = takeStream n (repeat x)
 
-filterNat :: (Nat -> Bool) -> ListNat -> ListNat
-filterNat = \p xs ->
+filter :: (a -> Bool) -> [a] -> [a]
+filter p xs =
   case xs of
-    NilNat -> NilNat
-    ConsNat x xs' ->
+    [] -> []
+    (x:xs') ->
       case p x of
-        False -> filterNat p xs'
-        True -> ConsNat x (filterNat p xs')
+        False -> filter p xs'
+        True -> x : (filter p xs')
 
-takeWhileListNat :: (Nat -> Bool) -> ListNat -> ListNat
-takeWhileListNat = \p xs ->
+takeWhile :: (a -> Bool) -> [a] -> [a]
+takeWhile p xs =
   case xs of
-    NilNat -> NilNat
-    ConsNat x xs' ->
+    [] -> []
+    (x:xs') ->
       case p x of
-        False -> NilNat
-        True -> ConsNat x (takeWhileListNat p xs')
+        False -> []
+        True -> x : (takeWhile p xs')
 
-takeWhileStream :: (Nat -> Bool) -> Stream -> ListNat
-takeWhileStream = \p s -> takeWhileListNat p (streamToList s)
+takeWhileStream :: (a -> Bool) -> Stream a -> [a]
+takeWhileStream p s = takeWhile p (streamToList s)
 
-dropWhileListNat :: (Nat -> Bool) -> ListNat -> ListNat
-dropWhileListNat = \p xs ->
+dropWhile :: (a -> Bool) -> [a] -> [a]
+dropWhile p xs =
   case xs of
-    NilNat -> NilNat
-    ConsNat x xs' ->
+    [] -> []
+    (x:xs') ->
       case p x of
-        False -> ConsNat x xs'
-        True -> dropWhileListNat p xs'
+        False -> x:xs'
+        True -> dropWhile p xs'
 
-dropWhileStream :: (Nat -> Bool) -> Stream -> Stream
-dropWhileStream = \p xs ->
+dropWhileStream :: (a -> Bool) -> Stream a -> Stream a
+dropWhileStream p xs =
   case xs of
-    Neck x xs' ->
+    (x :> xs') ->
       case p x of
-        False -> Neck x xs'
+        False -> x :> xs'
         True -> dropWhileStream p xs'
 
-null :: ListNat -> Bool
-null = \xs ->
+null :: [a] -> Bool
+null xs =
   case xs of
-    NilNat -> True
+    [] -> True
     _ -> False
 
-elem :: Nat -> ListNat -> Bool
-elem = \x xs -> or (mapNatBool (==x) xs)
+elem :: Nat -> [Nat] -> Bool
+elem = \x xs -> or (map (==x) xs)
 
-
-group :: ListNat -> ListListNat
-group = \xs ->
+groupBy :: (a -> a -> Bool) ->  [a] -> [[a]]
+groupBy f xs =
   case xs of
-    NilNat -> NilListNat
-    ConsNat x xs' -> ConsListNat (takeWhileListNat (==x) (ConsNat x xs')) (group (dropWhileListNat (==x) xs'))
+    [] -> []
+    (x:xs') -> (x : takeWhile (f x) xs') : (groupBy f $ dropWhile (f x) xs')
+ 
+group :: [Nat] -> [[Nat]]
+group = groupBy (==)
 
-nub :: ListNat -> ListNat
-nub = \xs ->
+nub :: [Nat] -> [Nat]
+nub xs =
   case xs of
-    NilNat -> NilNat
-    ConsNat x xs' -> ConsNat x (nub (filterNat (/=x) xs'))
+    [] -> []
+    (x:xs') -> x : (nub $ filter (/=x) xs')
 
 -- Альтернативный вариант nub
-nub' :: ListNat -> ListNat
-nub' = nub_ NilNat
+nub' :: [Nat] -> [Nat]
+nub' = nub_ []
 
-nub_ :: ListNat -> ListNat -> ListNat
-nub_ = \acc xs ->
+nub_ :: [Nat] -> [Nat] -> [Nat]
+nub_ acc xs =
   case xs of
-    NilNat -> reverse acc
-    ConsNat x xs' ->
+    [] -> reverse acc
+    (x:xs') ->
       case elem x acc of
         True -> nub_ acc xs'
-        False -> nub_ (ConsNat x acc) xs'
+        False -> nub_ (x:acc) xs'
 
-data PairListNat = PLN ListNat ListNat
-data PairStream = PS Stream Stream
+data Pair a b = Pair a b
 
-partitionNat :: (Nat -> Bool) -> ListNat -> PairListNat
-partitionNat = \f xs -> PLN (filterNat f xs) (filterNat (\x -> not (f x)) xs)
-partitionStream :: (Nat -> Bool) -> Stream -> PairStream
-partitionStream = \f xs -> PS (filterStream f xs) (filterStream (\x -> not (f x)) xs) 
+partition :: (a -> Bool) -> [a] -> Pair [a] [a]
+partition p xs = Pair (filter p xs) (filter (\x -> not (p x)) xs)
 
-data PairNat = PN Nat Nat
-  deriving Show
-data ListPairNat = NilPairNat | ConsPairNat PairNat ListPairNat
-  deriving Show
-
-zip :: ListNat -> ListNat -> ListPairNat
-zip = \xs ys ->
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith f xs ys =
   case xs of
-    NilNat -> NilPairNat
-    ConsNat x xs' ->
+    [] -> []
+    (x:xs') ->
       case ys of
-        NilNat -> NilPairNat
-        ConsNat y ys' -> ConsPairNat (PN x y) (zip xs' ys')
+        [] -> []
+        (y:ys') -> (f x y) : (zipWith f xs' ys')
 
-length :: ListNat -> Nat
-length = foldNat (\_ x -> Succ x) Zero
+zip :: [a] -> [b] -> [Pair a b]
+zip = zipWith Pair
 
-sort :: ListNat -> ListNat
-sort = \xs ->
+length :: [a] -> Nat
+length = foldr (const Succ) Zero
+
+rangeStep :: Nat -> Nat -> Nat -> [Nat]
+rangeStep a b c = takeWhileStream (<=c) $ iterate (+ (b-a)) a
+
+range :: Nat -> Nat -> [Nat]
+range a b = rangeStep a (Succ a) b
+
+sortBy :: (a -> a -> Bool) -> [a] -> [a]
+sortBy f xs =
   case xs of
-    NilNat           -> NilNat
-    ConsNat pivot xs' ->
-      case partitionNat (\x -> x < pivot) xs' of
-        PLN lesser bigger ->
-          appendNat (sort lesser) (ConsNat pivot (sort bigger))
+    []          -> []
+    (pivot:xs') ->
+      case partition (flip f pivot) xs' of
+        Pair lesser bigger ->
+          (sortBy f lesser) ++ (pivot : (sortBy f bigger))
+
+sort :: [Nat] -> [Nat]
+sort = sortBy (<)
