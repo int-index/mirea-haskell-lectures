@@ -19,9 +19,11 @@ flip f x y = f y x
 
 ($) :: (a -> b) -> a -> b
 ($) = id
+infixr 0 $
+
 (.) :: (b -> c) -> (a -> b) -> a -> c
 (.) f g = \x -> f (g x)
-infixr 0 $
+infixr .
 
 
 data Bool = True | False
@@ -240,7 +242,7 @@ groupBy :: (a -> a -> Bool) ->  [a] -> [[a]]
 groupBy f xs =
   case xs of
     [] -> []
-    (x:xs') -> (x : takeWhile (f x) xs') : (groupBy f $ dropWhile (f x) xs')
+    (x:xs') -> (x : takeWhile (f x) xs') : (groupBy f (dropWhile (f x) xs'))
  
 group :: [Nat] -> [[Nat]]
 group = groupBy (==)
@@ -249,7 +251,7 @@ nub :: [Nat] -> [Nat]
 nub xs =
   case xs of
     [] -> []
-    (x:xs') -> x : (nub $ filter (/=x) xs')
+    (x:xs') -> x : (nub (filter (/=x) xs'))
 
 -- Альтернативный вариант nub
 nub' :: [Nat] -> [Nat]
@@ -285,7 +287,7 @@ length :: [a] -> Nat
 length = foldr (const Succ) Zero
 
 rangeStep :: Nat -> Nat -> Nat -> [Nat]
-rangeStep a b c = takeWhileStream (<=c) $ iterate (+ (b-a)) a
+rangeStep a b c = takeWhileStream (<=c) (iterate (+ (b-a)) a)
 
 range :: Nat -> Nat -> [Nat]
 range a b = rangeStep a (Succ a) b
