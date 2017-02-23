@@ -56,14 +56,6 @@ not = \x ->
     Zero -> Zero
     (Succ x') -> y + (x' * y)
 
-(-) = \x y ->
-  case x of
-    Zero -> Zero
-    (Succ x') ->
-      case y of
-        (Succ y') -> x' - y'
-        Zero -> x
-
 odd, even :: Nat -> Bool
 odd = \x ->
   case x of
@@ -91,13 +83,13 @@ data Stream a = a :> Stream a
 
 infixr :>
 
-head :: Stream a -> a
-head xs =
+headStream :: Stream a -> a
+headStream xs =
   case xs of
     (x :> _) -> x
 
-tail :: Stream a -> Stream a
-tail xs =
+tailStream :: Stream a -> Stream a
+tailStream xs =
   case xs of
     (_ :> xs') -> xs'
 
@@ -110,8 +102,8 @@ iterate f x = x :> iterate f (f x)
 (!!) :: Stream a -> Nat -> a
 (!!) s x =
   case x of
-    Zero -> head s
-    (Succ n) -> tail s !! n
+    Zero -> headStream s
+    (Succ n) -> tailStream s !! n
 
 mapStream :: (a -> b) -> Stream a -> Stream b
 mapStream f s =
@@ -267,6 +259,7 @@ nub_ acc xs =
         False -> nub_ (x:acc) xs'
 
 data Pair a b = Pair a b
+  deriving Show
 
 partition :: (a -> Bool) -> [a] -> Pair [a] [a]
 partition p xs = Pair (filter p xs) (filter (\x -> not (p x)) xs)
@@ -286,11 +279,11 @@ zip = zipWith Pair
 length :: [a] -> Nat
 length = foldr (const Succ) Zero
 
-rangeStep :: Nat -> Nat -> Nat -> [Nat]
-rangeStep a b c = takeWhileStream (<=c) (iterate (+ (b-a)) a)
+--rangeStep :: Nat -> Nat -> Nat -> [Nat]
+--rangeStep a b c = takeWhileStream (<=c) (iterate (+ (b-a)) a)
 
-range :: Nat -> Nat -> [Nat]
-range a b = rangeStep a (Succ a) b
+--range :: Nat -> Nat -> [Nat]
+--range a b = rangeStep a (Succ a) b
 
 sortBy :: (a -> a -> Bool) -> [a] -> [a]
 sortBy f xs =
@@ -303,3 +296,84 @@ sortBy f xs =
 
 sort :: [Nat] -> [Nat]
 sort = sortBy (<)
+
+data Maybe a = Nothing | Just a
+  deriving Show
+
+head :: [a] -> Maybe a
+head xs =
+  case xs of
+    [] -> Nothing
+    (x : _) -> Just x
+ 
+tail :: [a] -> Maybe [a]
+tail xs =
+  case xs of
+    [] -> Nothing
+    (_ : xs') -> Just xs'
+
+init :: [a] -> Maybe [a]
+init xs = 
+  case tail (reverse xs) of
+    Nothing -> Nothing
+    Just xs' ->  Just (reverse xs')
+
+last :: [a] -> Maybe a
+last xs = head (reverse xs)
+
+
+(-) :: Nat -> Nat -> Maybe Nat
+(-) x y =
+  case x of
+    Zero ->
+      case y of
+        Zero -> Just Zero
+        _ -> Nothing
+    (Succ x') ->
+      case y of
+        (Succ y') -> x' - y'
+        Zero -> Just x
+
+
+divMod :: Nat -> Nat -> Maybe (Pair Nat Nat)
+divMod x y =
+  case y of
+    Zero -> Nothing
+    _ ->
+      case x - y of
+        Nothing -> Just (Pair 0 x)
+        Just x' ->
+          case divMod x' y of
+            Nothing -> Nothing
+            Just (Pair n a) -> Just (Pair (n+1) a)
+
+div :: Nat -> Nat -> Maybe Nat
+div x y =
+  case divMod x y of
+    Nothing -> Nothing
+    Just (Pair a _) -> Just a
+
+mod :: Nat -> Nat -> Maybe Nat
+mod x y =
+  case divMod x y of
+    Nothing -> Nothing
+    Just (Pair _ b) -> Just b
+
+maybe :: b -> (a -> b) -> Maybe a -> b
+maybe b f m =
+  case m of
+    Nothing -> b
+    Just a -> f a
+
+fromMaybe :: a -> Maybe a -> a
+fromMaybe b = maybe b id 
+
+mmap :: (a -> b) -> Maybe a -> Maybe b
+mmap f = maybe Nothing (Just . f)
+
+
+catMaybes :: [Maybe a] -> [a]
+catMaybes xs = foldr (maybe id (:)) [] xs
+
+mapMaybes :: (a -> Maybe b) -> [a] -> [b]
+mapMaybes f = catMaybes . map f
