@@ -369,5 +369,11 @@ fromMaybe :: a -> Maybe a -> a
 fromMaybe b = maybe b id 
 
 mmap :: (a -> b) -> Maybe a -> Maybe b
-mmap f m = maybe Nothing (Just . f)
+mmap f = maybe Nothing (Just . f)
 
+
+catMaybes :: [Maybe a] -> [a]
+catMaybes xs = foldr (maybe id (:)) [] xs
+
+mapMaybes :: (a -> Maybe b) -> [a] -> [b]
+mapMaybes f = catMaybes . map f
