@@ -14,6 +14,9 @@ data Stream a = a :> Stream a
     deriving Show
 infixr :>
 
+data Maybe a = Nothing | Just a
+    deriving Show
+
 -- Bool functions
 not :: Bool -> Bool
 not False = True
@@ -150,3 +153,22 @@ dropList :: Nat -> [a] -> [a]
 dropList Zero xs = xs
 dropList (Succ a) [] = []
 dropList (Succ a) (_ : xs) =  dropList a xs
+
+-- Maybe functions
+head :: [a] -> Maybe a
+head [] = Nothing
+head (x : xs) = Just x
+
+tail :: [a] -> Maybe [a]
+tail [] = Nothing
+tail (x : xs) = Just xs
+
+last :: [a] -> Maybe a
+last [] = Nothing
+last xs = head (revers xs)
+
+init :: [a] -> Maybe [a]
+init xs = 
+  case tail (revers xs) of
+    Nothing -> Nothing
+    Just xs' ->  Just (revers xs')
