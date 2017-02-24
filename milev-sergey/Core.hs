@@ -10,18 +10,9 @@ data Bool = True | False
 data Nat = Zero | Succ Nat
 magicNat ''Nat
 
-data Stream = Neck Nat Stream
+data Stream a = a :> Stream a
     deriving Show
-
--- List data types
-data ListNat = NilNat | ConsNat Nat ListNat
-magicList ''ListNat
-
-data ListBool = NilBool | ConsBool Bool ListBool
-magicList ''ListBool
-
-data ListListNat = NilListNat | ConsListNat ListNat ListListNat
-magicList ''ListListNat
+infixr :>
 
 -- Bool functions
 not :: Bool -> Bool
@@ -31,8 +22,11 @@ not True = False
 notnot :: Bool -> Bool
 notnot a = not (not a)
 
-id :: Bool -> Bool
+id :: a -> a 
 id a = a
+
+const :: a -> b -> a
+const a b = a
 
 (&&),(||) :: Bool -> Bool -> Bool
 (&&) True a = a
@@ -55,85 +49,104 @@ even (Succ a) = odd a
 odd Zero = False
 odd (Succ a) = even a
 
--- Stream functions
-zeroes :: Stream
-zeroes = Neck Zero zeroes
+-- -- Stream functions
+-- Stream Nat functions
+zeroes :: Stream Nat
+zeroes = Zero :> zeroes
 
-head::Stream->Nat
-head (Neck x xs) = x
+ones :: Stream Nat
+ones = Succ Zero :> ones
 
-tail :: Stream -> Stream
-tail (Neck x xs) = xs
+natsFrom :: Nat -> Stream Nat
+natsFrom n = n :> natsFrom (Succ n)
 
-natsFrom :: Nat -> Stream
-natsFrom n = Neck n (natsFrom (Succ n))
-
-repeat :: Nat -> Stream
-repeat n = Neck n (repeat n)
-
-natsFromZero :: Stream
+natsFromZero :: Stream Nat
 natsFromZero = natsFrom Zero
 
-map :: (Nat -> Nat) -> (Stream -> Stream)
-map f (Neck x xs) = Neck (f x) (map f xs)
+-- Stream polymorphic functions
+headStream::Stream a -> a
+headStream (x:>xs) = x
 
-filter :: (Nat->Bool)->(Stream->Stream)
-filter f (Neck x xs)= 
+tailStream :: Stream a -> Stream a
+tailStream (x:>xs) = xs
+
+repeatStream :: a -> Stream a
+repeatStream n = n :> (repeatStream n)
+
+mapStream :: (a-> b) -> (Stream a -> Stream b)
+mapStream f (x:>xs) =  (f x) :> (mapStream f xs)
+
+filterStream :: (a -> Bool)->(Stream a ->Stream a)
+filterStream f (x :> xs)= 
             case f x of
-                False -> filter f xs
-                True -> (Neck x (filter f xs))
--- -- List functions
--- ListNat functions
-mapListNat :: (Nat -> Nat) -> (ListNat -> ListNat)
-mapListNat f NilNat = NilNat
-mapListNat f (ConsNat x xs) = ConsNat (f x) (mapListNat f xs)
+                False -> filterStream f xs
+                True -> (x :> (filterStream f xs))
+iterate :: (a -> a) -> a -> Stream a
+iterate f n =  n :> iterate f (f n)
 
-filterListNat :: (Nat->Bool) -> (ListNat->ListNat)
-filterListNat f NilNat = NilNat
-filterListNat f (ConsNat x xs) =
+takeStream :: Nat -> Stream a -> [a]
+takeStream Zero s = []
+takeStream (Succ a) s = headStream s : takeStream a (tailStream s)
+
+dropStream :: Nat -> Stream a -> Stream a
+dropStream Zero s = s
+dropStream (Succ a) s = dropStream a (tailStream s)
+-- polymorthic List Functions
+
+filterList :: (a ->Bool) -> ([a]->[a])
+filterList f [] = []
+filterList f (x:xs) =
             case f x of
-                False -> filterListNat f xs
-                True -> (ConsNat x (filterListNat f xs))
+                False -> filterList f xs
+                True -> (x:(filterList f xs))
 
-(++) :: ListNat->ListNat->ListNat
-(++) NilNat ys = ys
-(++) (ConsNat x xs) ys = ConsNat x (xs++ys)
+mapList :: (a -> b) -> ([a]-> [b])
+mapList f []=[] 
+mapList f (x:xs) = (f x) : (mapList f xs)
 
-foldNat :: (Nat -> Nat -> Nat) -> Nat -> ListNat -> Nat
-foldNat f nil NilNat = nil 
-foldNat f nil (ConsNat x xs) = f x (foldNat f nil xs) 
+(++) :: [a]->[a]->[a]
+(++) [] ys = ys
+(++) (x:xs) ys = x:(xs++ys)
 
-foldNatSum, foldNatProd :: ListNat -> Nat
-foldNatSum = foldNat (+) Zero
-foldNatProd = foldNat (*) (Succ Zero)
--- ListBool functions
-foldBool :: (Bool -> Bool -> Bool) -> Bool -> ListBool -> Bool
-foldBool f nil NilBool = nil
-foldBool f nil (ConsBool x xs) = f x (foldBool f nil xs)
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f nil [] = nil
+foldr f nil (x : xs) = f x (foldr f nil xs)
 
-foldBoolAnd, foldBoolOr :: ListBool -> Bool
-foldBoolAnd = foldBool (&&) True
-foldBoolOr = foldBool (||) False
--- mixed List functions
-mapNatBool :: (Nat -> Bool) -> ListNat -> ListBool
-mapNatBool f NilNat = NilBool
-mapNatBool f (ConsNat x xs) = ConsBool (f x) (mapNatBool f xs)
+foldrSum, foldrProd :: [Nat] -> Nat
+foldrOr, foldrAnd :: [Bool] -> Bool
+foldrSum = foldr (+) Zero
+foldrProd = foldr (*) (Succ Zero)
+foldrOr = foldr (||) False
+foldrAnd = foldr (&&) True
 
-all,any :: (Nat->Bool)->ListNat -> Bool
-all f xs = foldBoolAnd (mapNatBool f xs) 
-any f xs = foldBoolOr (mapNatBool f xs) 
+all,any :: (t->Bool)->[t] -> Bool
+all f xs = foldrAnd (mapList f xs) 
+any f xs = foldrOr (mapList f xs) 
 
-revers :: ListNat->ListNat
-revers NilNat = NilNat
-revers (ConsNat x xs) = revers xs ++ (ConsNat x NilNat)
+revers :: [a] -> [a]
+revers [] = []
+revers (x : xs) = revers xs ++ ( x : [])
 
-concat :: ListListNat -> ListNat
-concat NilListNat = NilNat
-concat (ConsListNat x xs) = x ++ (concat xs)
+concat :: [[a]] -> [a]
+concat [] = []
+concat (x : xs) = x ++ (concat xs) 
 
-appendStream :: ListNat -> Stream -> Stream
-appendStream NilNat s = s
-appendStream (ConsNat x xs) s = Neck x (appendStream xs s)
+appendStream :: [a] -> Stream a -> Stream a
+appendStream [] s = s
+appendStream (x : xs) s = x :> (appendStream xs s)
 
-cycle :: ListNat -> Stream
+cycle :: [a] -> Stream a
 cycle xs = appendStream xs (cycle xs)
+
+replicate :: Nat -> a -> [a]
+replicate n a = takeStream n (repeatStream a)
+
+takeList :: Nat -> [a] -> [a]
+takeList Zero _ = []
+takeList (Succ a) [] = []
+takeList (Succ a) (x : xs) = x : takeList a xs
+
+dropList :: Nat -> [a] -> [a]
+dropList Zero xs = xs
+dropList (Succ a) [] = []
+dropList (Succ a) (_ : xs) =  dropList a xs
