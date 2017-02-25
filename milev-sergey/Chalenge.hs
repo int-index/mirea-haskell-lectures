@@ -60,3 +60,8 @@ foldrAnd = foldr (&&) True
 mapList :: (a -> b) -> ([a]-> [b])
 mapList f []=[] 
 mapList f (x:xs) = (f x) : (mapList f xs)
+-- -- Ch 3
+(++) :: [a]->[a]->[a]
+(++) xs ys = foldr (:) ys xs
+--(++) (x:xs) ys = x:(xs++ys)
+
