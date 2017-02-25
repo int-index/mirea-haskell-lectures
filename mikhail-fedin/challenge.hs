@@ -91,14 +91,24 @@ filter func list =
       False -> filter func list'
       True ->  element' : (filter func list')
 --filter func list = foldr
--- (\x xs -> case p x of
---    True -> x : xs
---    False -> xs)
+-- (\element list -> case func element of
+--    True -> element : list
+--    False -> list)
 --  []
 
---ifThenElse :: Bool -> a -> a ->a
---ifThenElse cond
+ifThenElse :: Bool -> a -> a -> a
+ifThenElse cond thenCase elseCase =
+ case cond of
+  True -> thenCase
+  False -> elseCase
 --filter func = foldr (\element -> ifThenElse (func element) (element :) id) []
 
 length :: [element] -> Nat
-length = foldr (const Succ) Zero
+length = foldr (const (Succ)) Zero
+
+null :: [element] -> Bool
+--null list =
+--  case list of
+--    [] -> True
+--    _ -> False
+null = foldr []
