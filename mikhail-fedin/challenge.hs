@@ -47,5 +47,12 @@ map func list =
 -- map func list = foldr (\element list' -> func element : list') [] list
 -- map func = foldr ((:) . func) []
 
+flip :: (a -> b -> c) -> b -> a -> c
+flip f x y = f y x
+
 (++) :: [element] -> [element] -> [element]
-(++) list1 list2 = foldr (:) list2 list1
+--(++) list1 list2 = foldr (:) list2 list1
+(++) = flip (foldr (:))
+
+concat :: [[element]] -> [element]
+concat = foldr (++) []
