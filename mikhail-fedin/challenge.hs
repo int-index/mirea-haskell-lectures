@@ -22,9 +22,25 @@ data Bool = True | False
       Zero -> Zero
       (Succ x') -> y + (x' * y)
 
+(.) :: (b -> c) -> (a -> b) -> a -> c
+(.) f g = \x -> f (g x)
+infixr .
+
 foldr :: (element -> accum -> accum) ->
  accum -> [element] -> accum
-foldr accum element list =
+foldr func element list =
   case list of
     [] -> element
-    (element' : list') -> accum element' (foldr accum element list')
+    (element' : list') -> func element' (foldr func element list')
+
+foldl :: (accum -> element -> accum) -> accum -> [element] -> accum
+foldl func element list =
+  case list of
+    [] -> element
+    (element' : list') -> foldl func (func element element') list'
+
+map :: (before -> after) -> [before] -> [after]
+map func list =
+  case list of
+    [] -> []
+    (element' : list') -> (func element') : (map func list')
