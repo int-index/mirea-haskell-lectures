@@ -39,5 +39,23 @@ foldr cons nil xs =
     []      -> nil
     x : xs' -> cons x (foldr cons nil xs')
 
+f . g = \x -> f (g x)
+
+map :: (before -> after) -> [before] -> [after]
+map f = foldr ((:) . f) []
+
+flip f a b = f b a
+
+(++) :: [element] -> [element] -> [element]
+(++) = flip (foldr (:))
+
+sum :: [Nat] -> Nat
+sum = foldr (+) 0
+
+product :: [Nat] -> Nat
+product = foldr (*) 1
+
+concat :: [[element]] -> [element]
+concat = foldr (++) []
 
 
