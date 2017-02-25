@@ -55,3 +55,50 @@ map' f xs = foldr ((:) . f) [] xs
 
 flip :: (alpha -> beta -> gamma) -> (beta -> alpha -> gamma)
 flip = \f x y -> f y x
+
+concat :: [[element]] -> [element]
+{-concat xs =
+	case xs of 
+		[] -> []
+		x:xs' -> case x of
+			x:xs'' -> concat xs'-}
+
+concat = foldr (++) []
+
+filter :: (element -> Bool) -> [element] -> [element]
+filter p xs =
+	case xs of
+		[] -> []
+		x:xs -> case p x of
+			True -> x : (filter p xs)
+			False -> filter p xs
+
+-- filter' p = foldr (\x xs -> ifThenElse (p x) (x:) xs) []
+filter' = \p -> foldr (\x -> ifThenElse (p x) (x:) id) []
+
+id :: alpha -> alpha
+id = \x -> x
+
+odd :: Nat -> Bool
+odd = \x ->
+ case x of
+  Zero -> False
+  (Succ a) -> even a
+
+even :: Nat -> Bool
+even = \x ->
+ case x of 
+  Zero -> True
+  (Succ a) -> odd a
+
+ifThenElse :: Bool -> a -> a -> a
+ifThenElse cond thenCase elseCase = 
+	case cond of 
+		True -> thenCase
+		False -> elseCase
+
+const :: alpha -> beta -> alpha
+const = \a b -> a
+
+length :: [element] -> Nat
+length = foldr ((+) . (const 1)) 0 
