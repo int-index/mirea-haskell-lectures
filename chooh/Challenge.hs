@@ -73,13 +73,8 @@ map f =
 concat :: [[α]] -> [α]
 concat = foldr (++) []
 
-hzhz :: (α -> Bool) -> α -> [α] -> [α]
-hzhz f x acc = case f x of
-    True -> x : acc
-    False -> acc
-
 filter :: (α -> Bool) -> [α] -> [α]
-filter f = foldr (hzhz f) []
+filter f = foldr (\x -> ifThenElse (f x) (x:) id) []
 
 ifThenElse :: Bool -> α -> α -> α
 ifThenElse cond thenCase elseCase =
