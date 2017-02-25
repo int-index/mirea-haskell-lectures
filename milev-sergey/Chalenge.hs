@@ -80,3 +80,8 @@ len, lenf :: [a] ->Nat
 len [] = Zero
 len (_ : xs) = Succ(len xs)
 lenf = foldr (const Succ) Zero 
+-- -- Ch7
+null :: [a] -> Bool
+null [] = True
+null _ = False
+
