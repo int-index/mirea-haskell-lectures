@@ -37,5 +37,5 @@ foldr :: (α -> β -> β) ->
           β
 foldr f acc list =
   case list of
-    [] -> acc
-    x : xs -> foldr f (f x acc) xs
+    []      -> acc
+    x : xs  -> f x (foldr f acc xs)
