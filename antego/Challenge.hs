@@ -37,3 +37,6 @@ map = \f listFrom ->
   case listFrom of
     [] -> []
     a : tail -> (f a) : (map f tail)
+
+(++) :: [element] -> [element] -> [element]
+(++) = \firstList secondList -> foldr (:) secondList firstList
