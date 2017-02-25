@@ -52,7 +52,29 @@ flip = \f x y -> f y x
 
 (++) :: [element] -> [element] -> [element]
 
---xs ++ ys = 
-  --  flip (foldr (:)) xs ys
-
 (++) = flip (foldr(:))
+
+
+concat :: [[element]] -> [element]
+concat = foldr (++) []
+
+filter :: (element -> Bool) -> [element] -> [element]
+
+filter p (x:xs) = foldr (\x xs -> 
+    case p x of
+        True -> x:xs
+        False -> xs) [] xs
+
+even, odd :: Nat -> Bool
+
+even x =
+  case x of
+    Zero   -> True
+    Succ a -> odd a
+
+odd x =
+  case x of
+    Zero   -> False
+    Succ a -> even a
+
+
