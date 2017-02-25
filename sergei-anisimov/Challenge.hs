@@ -56,3 +56,14 @@ map f list =
   case list of
     [] -> []
     x : xs -> f x : (map f xs)
+
+--map foldr
+--map f xs = foldr (\x xs' -> f x : xs') [] xs
+
+-- task 3 - (++)
+(++) :: [element] -> [element] -> [element]
+(++) list1 list2 =
+  --foldr (\ -> ) [] list2
+  case list1 of
+    []  -> list2
+    x1 : xs1 -> x1 : ((++) xs1 list2)
