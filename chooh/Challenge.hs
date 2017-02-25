@@ -51,3 +51,6 @@ map f =
 (++) :: [α] -> [α] -> [α]
 (++) =
   flip (foldr (:))
+
+concat :: [[α]] -> [α]
+concat = foldr (++) []
