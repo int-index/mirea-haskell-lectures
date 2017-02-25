@@ -68,3 +68,11 @@ mapList f (x:xs) = (f x) : (mapList f xs)
 concat :: [[a]] -> [a]
 concat = fold (++) []
 -- --concat (x : xs) = x ++ (concat xs) 
+-- -- Ch5
+filterList :: (a ->Bool) -> ([a]->[a])
+filterList f [] = []
+filterList f (x:xs) =
+            case f x of
+                False -> filterList f xs
+                True -> (x:(filterList f xs))
+
