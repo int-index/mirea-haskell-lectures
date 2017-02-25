@@ -47,6 +47,12 @@ odd x =
     Zero   -> False
     Succ a -> even a
 
+id :: α -> α
+id = \x -> x
+
+const :: alpha -> beta -> alpha
+const = \a b -> a
+
 foldr :: (α -> β -> β) ->
           β ->
           [α] ->
@@ -74,3 +80,12 @@ hzhz f x acc = case f x of
 
 filter :: (α -> Bool) -> [α] -> [α]
 filter f = foldr (hzhz f) []
+
+ifThenElse :: Bool -> α -> α -> α
+ifThenElse cond thenCase elseCase =
+  case cond of
+    True  -> thenCase
+    False -> elseCase
+
+length :: [α] -> Nat
+length = foldr (const Succ) 0
