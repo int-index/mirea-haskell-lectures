@@ -108,7 +108,7 @@ length list =
     [] -> 0
     x : xs -> 1 + (length xs)
 
--- раскрыть подстановкой
+-- ToDo - раскрыть подстановкой
 flength = foldr (\x n -> 1 + n) 0
 
 -- task 7 - null
@@ -117,3 +117,17 @@ null list =
   case list of
     []    -> True
     _ : _ -> False
+
+fnull = foldr (\_ _ -> False) True
+
+{-
+fork
+git clone [url to my fork]
+
+git add Challenge.hs
+git commit -m ""
+git push
+(again)
+
+git status, git show, git log
+-}
