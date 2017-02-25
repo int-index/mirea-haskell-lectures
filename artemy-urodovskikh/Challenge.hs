@@ -32,3 +32,14 @@ foldr f x xs =
 	case xs of 
 		[] -> x
 		s : xs' -> f s (foldr f x xs')
+
+map :: (before -> after) -> ([before] -> [after])
+map f xs =
+	case xs of 
+		[] -> []
+		x:xs -> (f x) : (map f xs)
+
+map' f xs = foldr ((:) . f) [] xs
+
+(.) :: (beta -> gamma) -> (alpha -> beta) -> (alpha -> gamma)
+(.) f g x = f (g x)
