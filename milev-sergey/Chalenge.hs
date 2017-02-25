@@ -66,7 +66,7 @@ mapList f (x:xs) = (f x) : (mapList f xs)
 --(++) (x:xs) ys = x:(xs++ys)
 -- Ch4
 concat :: [[a]] -> [a]
-concat = fold (++) []
+concat = foldr (++) []
 -- --concat (x : xs) = x ++ (concat xs) 
 -- -- Ch5
 filterList :: (a ->Bool) -> ([a]->[a])
@@ -75,4 +75,8 @@ filterList f (x:xs) =
             case f x of
                 False -> filterList f xs
                 True -> (x:(filterList f xs))
-
+-- -- Ch6
+len, lenf :: [a] ->Nat
+len [] = Zero
+len (_ : xs) = Succ(len xs)
+lenf = foldr (const Succ) Zero 
