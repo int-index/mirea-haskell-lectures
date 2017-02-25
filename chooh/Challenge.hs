@@ -35,6 +35,18 @@ flip :: (α -> β -> γ) ->
         (β -> α -> γ)
 flip = \f x y -> f y x
 
+even, odd :: Nat -> Bool
+
+even x =
+  case x of
+    Zero   -> True
+    Succ a -> odd a
+
+odd x =
+  case x of
+    Zero   -> False
+    Succ a -> even a
+
 foldr :: (α -> β -> β) ->
           β ->
           [α] ->
@@ -54,3 +66,11 @@ map f =
 
 concat :: [[α]] -> [α]
 concat = foldr (++) []
+
+hzhz :: (α -> Bool) -> α -> [α] -> [α]
+hzhz f x acc = case f x of
+    True -> x : acc
+    False -> acc
+
+filter :: (α -> Bool) -> [α] -> [α]
+filter f = foldr (hzhz f) []
