@@ -48,4 +48,11 @@ foldr f a list =
     []     -> a
     x : xs -> f x (foldr f a xs)
 
--- task 2 - 
+-- task 2 - map
+map :: (before   -> after) ->
+       ([before] -> [after])
+
+map f list =
+  case list of
+    [] -> []
+    x : xs -> f x : (map f xs)
