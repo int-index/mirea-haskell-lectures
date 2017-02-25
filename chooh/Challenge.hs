@@ -31,6 +31,10 @@ x * y =
     Zero   -> Zero
     Succ a -> y + (a * y)
 
+flip :: (alpha -> beta  -> gamma) ->
+        (beta  -> alpha -> gamma)
+flip = \f x y -> f y x
+
 foldr :: (α -> β -> β) ->
           β ->
           [α] ->
@@ -43,3 +47,7 @@ foldr f acc list =
 map :: (α -> β) -> [α] -> [β]
 map f =
   foldr ((:).f) []
+
+(++) :: [α] -> [α] -> [α]
+(++) =
+  flip (foldr (:))
