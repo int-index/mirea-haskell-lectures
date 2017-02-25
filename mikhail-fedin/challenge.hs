@@ -44,3 +44,8 @@ map func list =
   case list of
     [] -> []
     (element' : list') -> (func element') : (map func list')
+-- map func list = foldr (\element list' -> func element : list') [] list
+-- map func = foldr ((:) . func) []
+
+(++) :: [element] -> [element] -> [element]
+(++) list1 list2 = foldr (:) list2 list1
