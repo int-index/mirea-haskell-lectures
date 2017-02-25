@@ -56,11 +56,20 @@ odd = \x ->
     Zero -> False
     (Succ a) -> even a
 
+ifThenElse :: Bool -> a -> a -> a
+ifThenElse cond thenCase elseCase =
+  case cond of
+    True -> thenCase
+    False -> elseCase
+
+id :: alpha -> alpha
+id = \x -> x
+
 filter :: (element -> Bool) -> [element] -> [element]
-filter = \f list ->
-  case list of
-    [] -> []
-    first : tail ->
-      case f first of
-        False -> filter f tail
-        True -> first : (filter f tail)
+filter = \f -> foldr (\first -> ifThenElse (f first) (first :) id) []
+
+const :: alpha -> beta -> alpha
+const = \a b -> a
+
+length :: [element] -> Nat
+length = \list -> foldr (\a b -> b+1) 0 list
