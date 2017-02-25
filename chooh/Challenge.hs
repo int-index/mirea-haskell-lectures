@@ -39,3 +39,7 @@ foldr f acc list =
   case list of
     []      -> acc
     x : xs  -> f x (foldr f acc xs)
+
+map :: (α -> β) -> [α] -> [β]
+map f =
+  foldr ((:).f) []
