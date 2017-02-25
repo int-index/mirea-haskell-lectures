@@ -43,3 +43,24 @@ map = \f listFrom ->
 
 concat :: [[element]] -> [element]
 concat = foldr (++) []
+
+even :: Nat -> Bool
+even = \x ->
+  case x of
+    Zero -> True
+    (Succ a) -> odd a
+
+odd :: Nat -> Bool
+odd = \x ->
+  case x of
+    Zero -> False
+    (Succ a) -> even a
+
+filter :: (element -> Bool) -> [element] -> [element]
+filter = \f list ->
+  case list of
+    [] -> []
+    first : tail ->
+      case f first of
+        False -> filter f tail
+        True -> first : (filter f tail)
