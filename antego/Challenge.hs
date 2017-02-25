@@ -73,3 +73,6 @@ const = \a b -> a
 
 length :: [element] -> Nat
 length = \list -> foldr (\a b -> b+1) 0 list
+
+null :: [element] -> Bool
+null = foldr (\a b -> False) True
