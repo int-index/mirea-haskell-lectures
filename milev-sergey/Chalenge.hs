@@ -45,7 +45,7 @@ odd Zero = False
 odd (Succ a) = even a
 
 -- START
-
+-- -- Ch1
 foldr :: (a -> b -> b) -> b -> [a] -> b
 foldr f nil [] = nil
 foldr f nil (x : xs) = f x (foldr f nil xs)
@@ -56,3 +56,7 @@ foldrSum = foldr (+) Zero
 foldrProd = foldr (*) (Succ Zero)
 foldrOr = foldr (||) False
 foldrAnd = foldr (&&) True
+-- -- Ch2
+mapList :: (a -> b) -> ([a]-> [b])
+mapList f []=[] 
+mapList f (x:xs) = (f x) : (mapList f xs)
