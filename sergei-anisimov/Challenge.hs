@@ -40,7 +40,7 @@ odd x =
 
 foldr :: (element -> accum -> accum) ->
          accum ->      -- заменяет на пустой
-         [element] ->  --список
+         [element] ->  -- список
          accum
 --(not my)
 foldr f a list =
@@ -93,3 +93,17 @@ filter f list =
       case f x of
         False -> filter f xs
         True  -> x : (filter f xs)
+
+
+ffilter p = foldr (
+  \x xs -> case p x of
+    True  -> x : xs
+    False ->     xs
+                  ) []
+
+-- task 6 - length
+length :: [element] -> Nat
+length list =
+  case list of
+    [] -> 0
+    x : xs -> 1 + (length xs)
