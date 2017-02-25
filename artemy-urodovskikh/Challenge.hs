@@ -51,4 +51,7 @@ map' f xs = foldr ((:) . f) [] xs
   [] -> ys
   x : xs -> x : (xs ++ ys)
 
-(+++) xs ys = foldr (:) ys xs
+(+++) = flip (foldr (:))
+
+flip :: (alpha -> beta -> gamma) -> (beta -> alpha -> gamma)
+flip = \f x y -> f y x
