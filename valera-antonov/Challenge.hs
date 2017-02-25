@@ -36,3 +36,8 @@ foldr cons nil xs =
     case xs of
         [] -> nil
         (x:xs') -> cons x (foldr cons nil xs')
+
+map :: (before -> after) -> ([before] -> [after])
+
+map f (xs) = 
+    foldr (\y ys -> (f y):ys) [] xs
