@@ -53,6 +53,18 @@ id = \x -> x
 const :: alpha -> beta -> alpha
 const = \a b -> a
 
+(&&), (||) :: Bool -> Bool -> Bool
+
+x && y =
+  case x of
+    False -> False
+    True  -> y
+
+x || y =
+  case x of
+    False -> y
+    True  -> True
+
 foldr :: (α -> β -> β) ->
           β ->
           [α] ->
@@ -84,3 +96,6 @@ ifThenElse cond thenCase elseCase =
 
 length :: [α] -> Nat
 length = foldr (const Succ) 0
+
+null :: [α] -> Bool
+null = foldr (const (&& False)) True
