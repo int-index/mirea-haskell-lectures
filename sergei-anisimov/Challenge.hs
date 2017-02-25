@@ -94,7 +94,7 @@ filter f list =
         False -> filter f xs
         True  -> x : (filter f xs)
 
-
+-- list ввели здесьи сразу применили - поэтому убрали. это ита-редукция.
 ffilter p = foldr (
   \x xs -> case p x of
     True  -> x : xs
@@ -107,3 +107,13 @@ length list =
   case list of
     [] -> 0
     x : xs -> 1 + (length xs)
+
+-- раскрыть подстановкой
+flength = foldr (\x n -> 1 + n) 0
+
+-- task 7 - null
+null :: [element] -> Bool
+null list =
+  case list of
+    []    -> True
+    _ : _ -> False
