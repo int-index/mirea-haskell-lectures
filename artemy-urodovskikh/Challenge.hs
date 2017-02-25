@@ -45,7 +45,7 @@ map' f xs = foldr ((:) . f) [] xs
 (.) f g x = f (g x)
 
 
-(++) :: [element] -> [element] -> [element]
+(++), (+++) :: [element] -> [element] -> [element]
 (++) xs ys =
  case xs of
   [] -> ys
