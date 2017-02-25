@@ -98,4 +98,4 @@ length :: [α] -> Nat
 length = foldr (const Succ) 0
 
 null :: [α] -> Bool
-null = foldr (const (&& False)) True
+null = foldr (const (const False)) True
