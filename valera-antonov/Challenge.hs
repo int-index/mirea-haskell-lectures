@@ -41,3 +41,9 @@ map :: (before -> after) -> ([before] -> [after])
 
 map f (xs) = 
     foldr (\y ys -> (f y):ys) [] xs
+
+(++) :: [element] -> [element] -> [element]
+
+xs ++ ys = 
+    foldr (:) ys xs
+
