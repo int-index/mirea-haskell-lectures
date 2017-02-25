@@ -31,8 +31,8 @@ x * y =
     Zero   -> Zero
     Succ a -> y + (a * y)
 
-flip :: (alpha -> beta  -> gamma) ->
-        (beta  -> alpha -> gamma)
+flip :: (α -> β -> γ) ->
+        (β -> α -> γ)
 flip = \f x y -> f y x
 
 foldr :: (α -> β -> β) ->
