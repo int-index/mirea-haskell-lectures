@@ -43,3 +43,12 @@ map' f xs = foldr ((:) . f) [] xs
 
 (.) :: (beta -> gamma) -> (alpha -> beta) -> (alpha -> gamma)
 (.) f g x = f (g x)
+
+
+(++) :: [element] -> [element] -> [element]
+(++) xs ys =
+ case xs of
+  [] -> ys
+  x : xs -> x : (xs ++ ys)
+
+(+++) xs ys = foldr (:) ys xs
