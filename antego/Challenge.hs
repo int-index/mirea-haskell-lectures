@@ -40,3 +40,6 @@ map = \f listFrom ->
 
 (++) :: [element] -> [element] -> [element]
 (++) = \firstList secondList -> foldr (:) secondList firstList
+
+concat :: [[element]] -> [element]
+concat = foldr (++) []
