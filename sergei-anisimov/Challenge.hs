@@ -63,7 +63,33 @@ map f list =
 -- task 3 - (++)
 (++) :: [element] -> [element] -> [element]
 (++) list1 list2 =
-  --foldr (\ -> ) [] list2
   case list1 of
     []  -> list2
     x1 : xs1 -> x1 : ((++) xs1 list2)
+
+-- list1 ++ list2  = foldr (:) list2 list1
+-- ++ = flip
+
+-- task 4 - concat
+concat :: [[element]] -> [element]
+concat = foldr (++) []
+{-
+concat listOfLists =
+  case listOfLists of
+    [] -> []
+    x : xs ->
+      case x of
+        [] -> []
+        y : ys -> y : (concat (ys : xs))
+-}
+
+
+-- task 5 - filter
+filter :: (element -> Bool) -> [element] -> [element]
+filter f list =
+  case list of
+    [] -> []
+    x : xs ->
+      case f x of
+        False -> filter f xs
+        True  -> x : (filter f xs)
