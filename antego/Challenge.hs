@@ -31,3 +31,9 @@ foldr = \f accum list ->
   case list of
     [] -> accum
     a : tail -> f a (foldr f accum tail)
+
+map :: ( before -> after ) -> ([before] -> [after])
+map = \f listFrom ->
+  case listFrom of
+    [] -> []
+    a : tail -> (f a) : (map f tail)
