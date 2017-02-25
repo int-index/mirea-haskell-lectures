@@ -42,8 +42,17 @@ map :: (before -> after) -> ([before] -> [after])
 map f (xs) = 
     foldr (\y ys -> (f y):ys) [] xs
 
+(.) :: (beta -> gamma) -> (alpha -> beta) -> (alpha -> gamma)
+f . g = \x -> f (g x)
+
+
+flip :: (alpha -> beta  -> gamma) ->
+        (beta  -> alpha -> gamma)
+flip = \f x y -> f y x
+
 (++) :: [element] -> [element] -> [element]
 
-xs ++ ys = 
-    foldr (:) ys xs
+--xs ++ ys = 
+  --  flip (foldr (:)) xs ys
 
+(++) = flip (foldr(:))
