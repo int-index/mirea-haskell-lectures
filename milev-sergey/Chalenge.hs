@@ -64,4 +64,7 @@ mapList f (x:xs) = (f x) : (mapList f xs)
 (++) :: [a]->[a]->[a]
 (++) xs ys = foldr (:) ys xs
 --(++) (x:xs) ys = x:(xs++ys)
-
+-- Ch4
+concat :: [[a]] -> [a]
+concat = fold (++) []
+-- --concat (x : xs) = x ++ (concat xs) 
