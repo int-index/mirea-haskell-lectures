@@ -2,7 +2,6 @@
 module Challenge where
 
 import Prelude()
-
 import Magic
 
 data Bool =
@@ -23,11 +22,6 @@ x * y =
   case x of
     Zero   -> Zero
     Succ a -> y + (a * y)
-
--- data List element = Nil | Cons element (List element)
--- data [element] = []  | (:)  element [element]
-
--- [1,2,3] = 1 : 2 : 3 : []
 
 foldr ::
   (element -> accum -> accum) ->
@@ -58,4 +52,43 @@ product = foldr (*) 1
 concat :: [[element]] -> [element]
 concat = foldr (++) []
 
+even, odd :: Nat -> Bool
 
+even x =
+  case x of
+    Zero   -> True
+    Succ a -> odd a
+
+odd x =
+  case x of
+    Zero   -> False
+    Succ a -> even a
+
+ifThenElse :: Bool -> a -> a -> a
+ifThenElse cond thenCase elseCase =
+  case cond of
+    True  -> thenCase
+    False -> elseCase
+
+-- ifThenElse with arguments flipped
+bool :: a -> a -> Bool -> a
+bool onFalse onTrue b =
+  case b of
+    False -> onFalse
+    True  -> onTrue
+
+id :: a -> a
+id x = x
+
+-- applicative 2-argument lifting specialised to functions
+liftA2 f g h = \x -> f (g x) (h x)
+
+filter :: (element -> Bool) -> [element] -> [element]
+filter p = foldr (liftA2 (bool id) (:) p) []
+
+const x = \_ -> x
+
+length = foldr (const Succ) Zero
+
+null :: [element] -> Bool
+null = foldr ((const . const) False) True
