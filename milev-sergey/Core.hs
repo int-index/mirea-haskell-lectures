@@ -17,6 +17,8 @@ infixr :>
 data Maybe a = Nothing | Just a
     deriving Show
 
+data Pair a b = P a b
+    deriving Show
 -- Bool functions
 not :: Bool -> Bool
 not False = True
@@ -154,6 +156,13 @@ dropList Zero xs = xs
 dropList (Succ a) [] = []
 dropList (Succ a) (_ : xs) =  dropList a xs
 
+zip :: [a] -> [b] -> [Pair a b]
+zip [] [] = []
+zip (x:xs) (y:ys) = (P x y) : (zip xs ys)
+
+len :: [a] -> Nat
+len [] = Zero
+len (_:xs) = 1+len xs
 -- Maybe functions
 head :: [a] -> Maybe a
 head [] = Nothing
