@@ -164,25 +164,25 @@ zip (x:xs) (y:ys) = (P x y) : (zip xs ys)
 len :: [a] -> Nat
 len [] = Zero
 len (_:xs) = 1+len xs
--- >, <, == (84)
-(>), (<), (==) :: Nat -> Nat -> Bool
+-- (>), (<), (==), (<=),(>=) (84)
+(>), (<), (==), (<=),(>=) :: Nat -> Nat -> Bool
 (>) Zero Zero = False 
 (>) _ Zero = True
 (>) Zero _ = False
 (>) (Succ a) (Succ b) = (>) a b
 
+(>=) Zero Zero = True
+(>=) _ Zero = True
+(>=) Zero _ = False
+(>=) (Succ a) (Succ b) = (>=) a b
+
 flip :: (a -> b -> c) -> (b -> a -> c)
 flip f a b = f b a
 
 (<) = flip (>)
+(<=) = flip (>=)
 (==) a b = not (a<b) && not (a>b)
 
-{-
-(<) Zero Zero = False 
-(<) Zero (Succ b) = True
-(<) (Succ a) Zero = False
-(<) (Succ a) (Succ b) = (>) a b
--}
 -- Maybe functions
 head :: [a] -> Maybe a
 head [] = Nothing
