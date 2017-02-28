@@ -201,3 +201,26 @@ init xs =
   case tail (revers xs) of
     Nothing -> Nothing
     Just xs' ->  Just (revers xs')
+
+(-) :: Nat -> Nat -> Maybe Nat 
+(-) = \x y ->
+    case x of
+        Zero ->
+            case y of
+                Zero -> Just Zero
+                _ -> Nothing
+        (Succ a) ->
+            case y of
+                Zero -> Just x
+                (Succ b) -> a - b
+divMod :: Nat -> Nat -> Maybe (Pair Nat Nat)
+divMod = \x y ->
+    case y of
+        Zero -> Nothing
+        _ ->
+            case x - y of
+                Nothing -> Just (P 0 x)
+                Just a ->
+                    case divMod a y of
+                        Nothing -> Nothing
+                        Just (P b c) -> Just (P (b+1) c)
