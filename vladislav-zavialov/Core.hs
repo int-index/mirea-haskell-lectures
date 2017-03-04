@@ -42,6 +42,7 @@ data Unit = U
 data Color = Red | Green | Blue
 
 data Suit = Spades | Hearts | Diamonds | Clubs
+  deriving Show
 
 data Nat = Succ Nat | Zero
 
@@ -379,3 +380,49 @@ foldr cons nil xs =
 
 compose :: [alpha -> alpha] -> alpha -> alpha
 compose = foldr (.) id
+
+data Either a b = Left a | Right b
+
+stpbb :: Suit -> Pair Bool Bool
+stpbb s = case s of
+  Spades   -> P True True
+  Hearts   -> P True False
+  Diamonds -> P False True
+  Clubs    -> P False False
+
+pbbts :: Pair Bool Bool -> Suit
+pbbts pbb = case pbb of
+  P True True   -> Spades
+  P True False  -> Hearts
+  P False True  -> Diamonds
+  P False False -> Clubs
+
+-- stpbb . pbbts = id
+-- pbbts . stpbb = id
+
+
+btatpaa :: (Bool -> a) -> Pair a a
+btatpaa f = P (f True) (f False)
+
+paatbta :: Pair a a -> (Bool -> a)
+paatbta paa b =
+  case paa of
+    P x y ->
+      case b of
+        True  -> x
+        False -> y
+
+k :: Bool -> Nat
+k b = case b of
+  False -> 0
+  True  -> 42
+
+-- from . to = id
+-- to . from = id
+data Iso a b = I (a -> b) (b -> a)
+
+from :: Iso a b -> (a -> b)
+from (I f _t) = f
+
+to :: Iso a b -> (b -> a)
+to (I _f t) = t
