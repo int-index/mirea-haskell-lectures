@@ -1,8 +1,17 @@
-{-# LANGUAGE TemplateHaskell, NoImplicitPrelude #-}
+{-# LANGUAGE TemplateHaskell, NoImplicitPrelude, EmptyDataDecls, EmptyCase #-}
 
 module Core where
 
+import Prelude(Show(..))
 import Magic
+
+data Void
+
+instance Show Void where
+  show = absurd
+
+absurd :: Void -> a
+absurd v = case v of {}
 
 data Bool =
   False | True
@@ -35,9 +44,8 @@ x || y =
     False -> y
     True  -> True
 
-data Void
-
 data Unit = U
+  deriving Show
 
 data Color = Red | Green | Blue
 
@@ -382,6 +390,7 @@ compose :: [alpha -> alpha] -> alpha -> alpha
 compose = foldr (.) id
 
 data Either a b = Left a | Right b
+  deriving Show
 
 stpbb :: Suit -> Pair Bool Bool
 stpbb s = case s of
@@ -426,3 +435,32 @@ from (I f _t) = f
 
 to :: Iso a b -> (b -> a)
 to (I _f t) = t
+
+either :: (a -> r) -> (b -> r) -> (Either a b -> r)
+either onLeft onRight eab = case eab of
+  Left  a -> onLeft a
+  Right b -> onRight b
+
+-- x = 0 + x
+plusLeftId :: Iso a (Either Void a)
+plusLeftId = I Right (either absurd id)
+
+-- x = x + 0
+plusRightId :: Iso a (Either a Void)
+plusRightId = I Left (either id absurd)
+
+-- x = 1 * x
+multLeftId :: Iso a (Pair Unit a)
+multLeftId = I (P U) snd
+
+-- x = x * 1
+multRightId :: Iso a (Pair a Unit)
+multRightId = I (flip P U) fst
+
+-- x^1 = x
+expRightId :: Iso a (Unit -> a)
+expRightId = I const (\f -> f U)
+
+-- 1^x = 1
+expLeftId :: Iso Unit (a -> Unit)
+expLeftId = I const (const U)
