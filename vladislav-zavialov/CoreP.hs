@@ -23,9 +23,14 @@ module CoreP where
 --  toRational
 -- Show a
 --  show
+-- Functor a
+--  fmap
+-- Foldable a
+--  foldr
 
--- sum :: [Nat] -> Nat
-sum' :: Num a => [a] -> a
+data Nat = Succ Nat | Zero
+
+sum' :: Foldable f => Num a => f a -> a
 sum' = foldr (+) 0
 
 data Tree a = Leaf a | Branch a (Tree a) (Tree a)
@@ -56,22 +61,31 @@ treeSample =
         (Leaf 8))
       (Leaf 8))
 
+instance Functor Stream where
+  fmap f (x :> xs) = f x :> fmap f xs
 
-class Mappable container where
-  cmap :: (a -> b) -> container a -> container b
+instance Functor Tree where
+  fmap f (Leaf a)           = Leaf (f a)
+  fmap f (Branch a lst rst) =
+    Branch (f a) (fmap f lst) (fmap f rst)
 
-instance Mappable [] where
-  cmap f []       = []
-  cmap f (x : xs) = f x : cmap f xs
+instance Foldable Tree where
+  foldr cons nil = foldr cons nil . treeToList
 
-instance Mappable Maybe where
-  cmap f Nothing  = Nothing
-  cmap f (Just a) = Just (f a)
+treeToList :: Tree a -> [a]
+treeToList (Leaf a) = [a]
+treeToList (Branch a lst rst) =
+  treeToList lst ++
+  [a] ++
+  treeToList rst
 
-instance Mappable Stream where
-  cmap f (x :> xs) = f x :> cmap f xs
+data Ten = A | B | C | D | E | F | G | H | K | L
+  deriving (Show, Eq, Ord)
 
-instance Mappable Tree where
-  cmap f (Leaf a)           = Leaf (f a)
-  cmap f (Branch a lst rst) =
-    Branch (f a) (cmap f lst) (cmap f rst)
+data Pair a = P
+  { pfst :: a
+  , psnd :: a
+  } deriving (Show)
+
+instance Functor Pair where
+  fmap f (P x y) = P (f x) (f y)
