@@ -1,0 +1,20 @@
+name: helloworld
+version: 0.0.1
+build-type: Simple
+cabal-version: >=1.18
+
+library
+  exposed-modules: HelloWorld
+  build-depends:
+    base >=4.9 && <4.10
+  default-language: Haskell2010
+  hs-source-dirs: src
+  ghc-options: -Wall
+
+executable helloworld
+  main-is: Main.hs
+  build-depends:
+    base >=4.9 && <4.10,
+    helloworld
+  default-language: Haskell2010
+  ghc-options: -Wall
